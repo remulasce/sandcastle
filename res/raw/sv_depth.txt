@@ -1,0 +1,13 @@
+attribute vec4 a_vPos;
+
+uniform mat4 u_mMat;
+uniform mat4 u_vpMat;
+
+varying vec4 v_fPos;
+varying highp float depth;
+
+void main() {
+	gl_Position		= u_vpMat * u_mMat * a_vPos;
+	v_fPos		= u_vpMat * u_mMat * a_vPos;
+	//depth = ((v_fPos.z) / v_fPos.w + 1.0 ) / 2.0 + .001;
+}

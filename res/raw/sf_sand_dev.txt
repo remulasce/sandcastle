@@ -1,0 +1,58 @@
+precision mediump float;
+
+varying vec4 v_lPos;
+varying lowp float darkFace;
+varying highp float depth;
+varying vec2 v_tCoord;
+
+
+//varying vec4 test;
+
+uniform sampler2D u_depthSamp;
+uniform sampler2D u_texSamp;
+
+const lowp vec4 bitShifts = vec4(1.0 / (256.0 * 256.0 * 256.0),
+						1.0 / (256.0 * 256.0),
+						1.0 / 256.0,
+						1.0);
+
+highp float depack(vec4 raw) {
+	highp float shadow = dot(raw , bitShifts);
+
+	return shadow;
+	
+}
+
+
+void main() {
+
+	
+	vec4 color		= texture2D(u_texSamp, v_tCoord);
+	
+	//If we're facing away from light, we definitely get none. Otherwise,
+	//	we have to do fancy calculations.
+	if (darkFace == 0.0) {
+		//Shadow closest depth from texture
+		vec2 lCoord = (v_lPos.xy / v_lPos.w );
+		highp float sz	= depack(texture2D(u_depthSamp, lCoord));
+		
+		//Depth this fragment is
+		//highp float z		= (v_lPos.z / v_lPos.w);
+		highp float z = depth;
+		
+		
+		//Regular rendering with shadow
+		if (sz < z) {
+			//Shadow, there's something closer to the light than us
+			color -= .2;
+		}	
+	} else {
+		//We were facing away, so we definitely need shadow.
+		color -= .2;
+	}
+	gl_FragColor = color;
+	
+	
+	//Render the texture depth as color
+	//gl_FragColor = vec4(sz, sz, sz, 1.0);
+}

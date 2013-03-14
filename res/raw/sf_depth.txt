@@ -1,0 +1,30 @@
+
+precision highp float;
+
+varying vec4 v_fPos;
+varying highp float depth;
+
+vec4 pack (float depth)
+{
+	const vec4 bitSh = vec4(256.0 * 256.0 * 256.0,
+					   256.0 * 256.0,
+					   256.0,
+					  1.0);
+	const vec4 bitMsk = vec4(0,
+					     1.0 / 256.0,
+					     1.0 / 256.0,
+				             1.0 / 256.0);
+	vec4 comp = fract(depth * bitSh);
+	comp -= comp.xxyz * bitMsk;
+	return comp;
+}
+
+
+void main() {
+	//Straight up z value, divided by max depth w, to get percentish depth.
+	float z			= ((v_fPos.z) / v_fPos.w + 1.0 ) / 2.0 + .001;
+	//float z = depth;
+	gl_FragColor	= pack(z);
+	//gl_FragColor	= vec4(z,z,z,1.0);
+}
+	 
